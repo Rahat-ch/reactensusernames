@@ -1,23 +1,30 @@
-import logo from './logo.svg';
 import './App.css';
+import { ethers } from 'ethers';
+import { useState } from 'react';
 
 function App() {
+  const [name, setName] = useState("");
+  const handleWalletConnect = async () => {
+    const { ethereum } = window;
+    if(ethereum) {
+      const provider = new ethers.providers.Web3Provider(ethereum)
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner()
+      const address = await signer.getAddress()
+      const ens = await provider.lookupAddress(address);
+      if (ens !== null) {
+        setName(ens)
+      } else {
+        setName(address)
+      }
+    } else {
+      alert('no wallet detected!')
+    }
+  }
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <button className ="button" onClick={() => handleWalletConnect()}>connect</button>
+      <h1>{name}</h1>
     </div>
   );
 }
